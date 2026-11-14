@@ -102,9 +102,13 @@ jobs:
   generate-sbom:
     needs: [validate-update-metadata-keys]
     runs-on: ubuntu-latest
+    # [CUSTOM] Only the upstream repo publishes SBOMs to a release. Skipping it on
+    # forks avoids needing 'contents: write' (fork tokens are read-only by default,
+    # which made the whole workflow fail to start).
+    if: ${{ github.repository == 'rustdesk/rustdesk' }}
 
     permissions:
-      contents: write
+      contents: read
 
     steps:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4
@@ -1211,8 +1215,10 @@ jobs:
       group: signed-update-${{ inputs.upload-tag }}
       cancel-in-progress: false
     permissions:
-      # Required to inspect and publish signed release assets for the target tag.
-      contents: write
+      # [CUSTOM] This job only ever runs on the upstream repo (see the `if` above),
+      # so it stays read-only here. Declaring 'contents: write' made GitHub reject
+      # the whole workflow on forks before any job could start.
+      contents: read
     steps:
       - name: Refuse to replace published update metadata
         shell: bash
