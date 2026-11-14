@@ -186,7 +186,11 @@ fn start_auto_update_check_(rx_msg: Receiver<UpdateMsg>) {
     }
 }
 
+#[allow(unreachable_code)]
 fn check_update(manually: bool) -> ResultType<()> {
+    // [CUSTOM-1.5.3] Updates disabled on purpose: a stock update would bring the
+    // secure_tcp handshake back and break API login against the OSS server again.
+    return Ok(());
     // On macOS, auto-update is handled by check_update_as_root() in the service process.
     // The shared check_update() path is only used for manual update checks from the GUI.
     #[cfg(target_os = "macos")]

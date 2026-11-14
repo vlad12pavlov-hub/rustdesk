@@ -2289,7 +2289,14 @@ pub fn check_process(arg: &str, mut same_uid: bool) -> bool {
     false
 }
 
+#[allow(unreachable_code)]
 async fn secure_tcp_impl(conn: &mut Stream, key: &str, log_on_success: bool) -> ResultType<()> {
+    // [CUSTOM-1.5.3] The official OSS hbbs does not implement the KeyExchange
+    // handshake. A stock client therefore waits READ_TIMEOUT (18 s) and then fails
+    // with "Failed to secure tcp", which breaks every connection made while logged
+    // into an API account. Skip the handshake entirely. Only the client <-> hbbs
+    // channel is affected; end-to-end encryption between peers is unchanged.
+    return Ok(());
     // Skip additional encryption when using WebSocket connections (wss://)
     // as WebSocket Secure (wss://) already provides transport layer encryption.
     // This doesn't affect the end-to-end encryption between clients,
